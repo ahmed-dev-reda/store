@@ -181,7 +181,7 @@ export default function OrdersPage() {
                     {t[order.status as keyof typeof t] ?? order.status}
                   </Badge>
                   <span className="font-semibold">
-                    ${order.total.toFixed(2)}
+                    {order.total.toFixed(2)} EGP
                   </span>
                   <ChevronRight className="size-4 text-muted-foreground" />
                 </div>

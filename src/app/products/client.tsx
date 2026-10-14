@@ -122,7 +122,7 @@ export default function ClientProductsPage({
                   <span className="text-lg font-bold">
                     {format.number(product.price, {
                       style: "currency",
-                      currency: "USD",
+                      currency: "EGP",
                     })}
                   </span>
                   {product.quantity > 0 && (

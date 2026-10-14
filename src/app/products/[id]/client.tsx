@@ -67,7 +67,7 @@ export default function Client({ product }: { product: Product }) {
             </h1>
           </div>
 
-          <p className="text-3xl font-bold">{format.number(product.price, { style: "currency", currency: "USD" })}</p>
+          <p className="text-3xl font-bold">{format.number(product.price, { style: "currency", currency: "EGP" })}</p>
 
           <p className="text-muted-foreground leading-relaxed">
             {product.description}

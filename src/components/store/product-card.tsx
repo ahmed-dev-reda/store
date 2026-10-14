@@ -47,7 +47,7 @@ export function ProductCard({ product }: { product: Product }) {
             {product.name}
           </h3>
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-lg font-bold">{format.number(product.price, { style: "currency", currency: "USD" })}</span>
+            <span className="text-lg font-bold">{format.number(product.price, { style: "currency", currency: "EGP" })}</span>
             {product.quantity > 0 && (
               <Button
                 size="sm"

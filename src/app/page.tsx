@@ -145,7 +145,7 @@ export default function HomePage() {
                 </h3>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-lg font-bold">
-                    {format.number(product.price, { style: "currency", currency: "USD" })}
+                    {format.number(product.price, { style: "currency", currency: "EGP" })}
                   </span>
                   {product.quantity > 0 && (
                     <AddToCartButton

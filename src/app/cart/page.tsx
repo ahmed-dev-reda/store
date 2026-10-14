@@ -71,7 +71,7 @@ export default function CartPage() {
                     <Trash2 className="size-4" />
                   </button>
                 </div>
-                <p className="text-sm text-muted-foreground">{format.number(item.price, { style: "currency", currency: "USD" })} {t("each")}</p>
+                <p className="text-sm text-muted-foreground">{format.number(item.price, { style: "currency", currency: "EGP" })} {t("each")}</p>
                 <div className="mt-auto flex items-center justify-between pt-3">
                   <div className="flex items-center rounded-md border">
                     <button onClick={() => dispatch(updateQuantity({ productId: item.productId, quantity: item.quantity - 1 }))} className="p-1.5 transition-colors hover:bg-muted" aria-label={t("decreaseQuantity")}>
@@ -82,7 +82,7 @@ export default function CartPage() {
                       <Plus className="size-3.5" />
                     </button>
                   </div>
-                  <span className="font-semibold">{format.number(item.price * item.quantity, { style: "currency", currency: "USD" })}</span>
+                  <span className="font-semibold">{format.number(item.price * item.quantity, { style: "currency", currency: "EGP" })}</span>
                 </div>
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function CartPage() {
           <div className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between text-muted-foreground">
               <span>{t("subtotal")}</span>
-              <span>{format.number(totalPrice, { style: "currency", currency: "USD" })}</span>
+              <span>{format.number(totalPrice, { style: "currency", currency: "EGP" })}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>{t("shipping")}</span>
@@ -102,7 +102,7 @@ export default function CartPage() {
             </div>
             <div className="border-t pt-2 flex justify-between text-base font-semibold">
               <span>{t("total")}</span>
-              <span>{format.number(totalPrice, { style: "currency", currency: "USD" })}</span>
+              <span>{format.number(totalPrice, { style: "currency", currency: "EGP" })}</span>
             </div>
           </div>
           <button

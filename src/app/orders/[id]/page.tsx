@@ -140,17 +140,17 @@ export default function OrderDetailPage() {
                 <div>
                   <p className="font-medium">{item.productName ?? "Product"}</p>
                   <p className="text-sm text-muted-foreground">
-                    {item.quantity} × ${item.unitPrice.toFixed(2)}
+                    {item.quantity} × {item.unitPrice.toFixed(2)} EGP
                   </p>
                 </div>
               </div>
-              <span className="font-medium">${item.subtotal.toFixed(2)}</span>
+              <span className="font-medium">{item.subtotal.toFixed(2)} EGP</span>
             </div>
           ))}
         </div>
         <div className="flex justify-between border-t p-4">
           <span className="font-semibold">{t.total}</span>
-          <span className="font-bold text-lg">${order.total.toFixed(2)}</span>
+          <span className="font-bold text-lg">{order.total.toFixed(2)} EGP</span>
         </div>
       </div>
     </section>
