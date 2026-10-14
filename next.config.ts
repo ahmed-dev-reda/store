@@ -1,8 +1,19 @@
 import type { NextConfig } from "next";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const imageHost = new URL(API_URL);
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: imageHost.protocol.slice(0, -1) as "http" | "https",
+        hostname: imageHost.hostname,
+        port: imageHost.port,
+        pathname: "/**",
+      },
+    ],
+  },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -12,16 +23,6 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
-  },
-  async rewrites() {
-    // Proxy all API calls to the admin backend so the browser stays
-    // same-origin (cookies just work in dev across ports).
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${API_URL}/api/:path*`,
-      },
-    ];
   },
 };
 

@@ -5,9 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations();
   const [error, setError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -19,7 +25,7 @@ export default function RegisterPage() {
     const password = String(form.get("password") ?? "");
     const confirm = String(form.get("confirm") ?? "");
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError(t("passwordsDoNotMatch"));
       setIsSubmitting(false);
       return;
     }
@@ -27,10 +33,11 @@ export default function RegisterPage() {
       email: String(form.get("email") ?? ""),
       password,
       name: String(form.get("name") ?? ""),
+      username: String(form.get("username") ?? ""),
     });
     setIsSubmitting(false);
     if (error) {
-      setError(error.message ?? "Registration failed");
+      setError(t("registrationFailed"));
       return;
     }
     router.push("/login");
@@ -39,73 +46,85 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-[70vh] items-center justify-center">
-      <div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-8 shadow-sm">
-        <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
-          <p className="text-sm text-muted-foreground">Sign up to start shopping</p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="name" className="text-sm font-medium">Name</label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Your name"
-              required
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              required
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Minimum 8 characters"
-              required
-              minLength={8}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="confirm" className="text-sm font-medium">Confirm Password</label>
-            <input
-              id="confirm"
-              name="confirm"
-              type="password"
-              placeholder="Repeat your password"
-              required
-              minLength={8}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-          >
-            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-            Create Account
-          </button>
-        </form>
-        <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">Sign in</Link>
-        </p>
-      </div>
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            {t("createAccount")}
+          </CardTitle>
+          <CardDescription>{t("signUpToStart")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">{t("name")}</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder={t("namePlaceholder")}
+                required
+                autoComplete="name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="username">{t("username")}</Label>
+              <Input
+                id="username"
+                name="username"
+                placeholder={t("usernamePlaceholder")}
+                required
+                minLength={3}
+                autoComplete="username"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">{t("email")}</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder={t("emailPlaceholder")}
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">{t("password")}</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder={t("passwordMinLength")}
+                required
+                minLength={8}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm">{t("confirmPassword")}</Label>
+              <Input
+                id="confirm"
+                name="confirm"
+                type="password"
+                placeholder={t("confirmPasswordPlaceholder")}
+                required
+                minLength={8}
+                autoComplete="new-password"
+              />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isSubmitting ? t("creating") : t("createAccountBtn")}
+            </Button>
+          </form>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            {t("haveAccount")} {" "}
+            <Link href="/login" className="text-primary hover:underline">
+              {t("signInLink")}
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
