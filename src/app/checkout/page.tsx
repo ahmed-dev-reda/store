@@ -12,6 +12,7 @@ import { createOrder } from "@/actions/orders";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { VisaCardForm } from "@/components/store/visa-card-form";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function CheckoutPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [paymentMethod, setPaymentMethod] = React.useState<"cod" | "visa">("visa");
+  const [isCardValid, setIsCardValid] = React.useState(false);
 
   React.useEffect(() => {
     if (!isPending && !session) router.push("/login");
@@ -184,6 +186,10 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
 
+          {paymentMethod === "visa" && (
+            <VisaCardForm lang={lang} onValidityChange={setIsCardValid} />
+          )}
+
           {/* Shipping notice */}
           <Card className="flex items-center gap-3 p-4">
             <Truck className="size-5 text-primary shrink-0" />
@@ -225,13 +231,20 @@ export default function CheckoutPage() {
             </div>
             <Button
               onClick={handleCheckout}
-              disabled={isSubmitting}
+              disabled={isSubmitting || (paymentMethod === "visa" && !isCardValid)}
               className="w-full"
               size="lg"
             >
               {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
               {isSubmitting ? t.placingOrder : t.placeOrder}
             </Button>
+            {paymentMethod === "visa" && !isCardValid && (
+              <p className="text-center text-xs text-muted-foreground">
+                {lang === "ar"
+                  ? "أكمل بيانات البطاقة بشكل صحيح لإتمام الطلب"
+                  : "Complete your card details correctly to place the order"}
+              </p>
+            )}
             <Link
               href="/products"
               className="block text-center text-sm text-muted-foreground hover:text-foreground"
