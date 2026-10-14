@@ -5,7 +5,14 @@ const imageHost = new URL(API_URL);
 
 const nextConfig: NextConfig = {
   images: {
+    // Static list so production builds work regardless of which
+    // NEXT_PUBLIC_API_URL value was present at build time.
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "admin-devtrend.vercel.app",
+        pathname: "/uploads/**",
+      },
       {
         protocol: imageHost.protocol.slice(0, -1) as "http" | "https",
         hostname: imageHost.hostname,
