@@ -4,15 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { ShoppingBag, Loader2, CreditCard, Truck, Banknote, Wallet } from "lucide-react";
+import { ShoppingBag, Loader2, CreditCard, Truck, Banknote, Wallet, BadgePercent, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearCart } from "@/store/cartSlice";
 import { getDict } from "@/store/languageSlice";
-import { createOrder } from "@/actions/orders";
+import { createOrder, validateDiscountCode } from "@/actions/orders";
+import type { ValidatedDiscount } from "@/lib/discount";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { VisaCardForm } from "@/components/store/visa-card-form";
+
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,6 +31,33 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [paymentMethod, setPaymentMethod] = React.useState<"cod" | "visa">("visa");
   const [isCardValid, setIsCardValid] = React.useState(false);
+  const [promoInput, setPromoInput] = React.useState("");
+  const [discount, setDiscount] = React.useState<ValidatedDiscount | null>(null);
+  const [discountError, setDiscountError] = React.useState<string | null>(null);
+  const [isApplyingDiscount, setIsApplyingDiscount] = React.useState(false);
+
+  const subtotal = totalPrice;
+  const discountAmount = discount
+    ? discount.type === "PERCENTAGE"
+      ? (subtotal * discount.amount) / 100
+      : Math.min(discount.amount, subtotal)
+    : 0;
+  const finalTotal = Math.max(0, subtotal - discountAmount);
+
+  const handleApplyDiscount = async () => {
+    if (!promoInput.trim()) return;
+    setIsApplyingDiscount(true);
+    setDiscountError(null);
+    try {
+      const valid = await validateDiscountCode(promoInput);
+      setDiscount(valid);
+      setPromoInput("");
+    } catch {
+      setDiscountError(t.invalidDiscount);
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  };
 
   React.useEffect(() => {
     if (!isPending && !session) router.push("/login");
@@ -40,6 +71,7 @@ export default function CheckoutPage() {
     try {
       const sale = await createOrder({
         paymentMethod,
+        discountCode: discount?.code,
         items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       });
       dispatch(clearCart());
@@ -114,11 +146,11 @@ export default function CheckoutPage() {
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {t.quantityShort}: {item.quantity} × ${item.price.toFixed(2)}
+                        {t.quantityShort}: {item.quantity} × {item.price.toFixed(2)} EGP
                       </p>
                     </div>
                   </div>
-                  <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-semibold">{(item.price * item.quantity).toFixed(2)} EGP</span>
                 </div>
               ))}
             </CardContent>
@@ -223,11 +255,73 @@ export default function CheckoutPage() {
                 <span>{t.shipping}</span>
                 <span>{t.free}</span>
               </div>
+              {discount && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                  <span>
+                    {t.discount} ({discount.code})
+                  </span>
+                  <span>−{discountAmount.toFixed(2)} EGP</span>
+                </div>
+              )}
             </div>
+
+            {/* Discount code */}
+            {discount ? (
+              <div className="flex items-center justify-between rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm">
+                <span className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
+                  <BadgePercent className="size-4" />
+                  {discount.code}
+                  <span className="font-normal text-muted-foreground">
+                    {discount.type === "PERCENTAGE"
+                      ? `${discount.amount}%`
+                      : `${discount.amount.toFixed(2)} EGP`}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setDiscount(null)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-3.5" />
+                  {t.remove}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <Label htmlFor="promo">{t.discountCode}</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="promo"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value)}
+                    placeholder={t.discountPlaceholder}
+                    disabled={isApplyingDiscount}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleApplyDiscount();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleApplyDiscount}
+                    disabled={isApplyingDiscount || !promoInput.trim()}
+                  >
+                    {isApplyingDiscount ? t.applying : t.apply}
+                  </Button>
+                </div>
+                {discountError && (
+                  <p className="text-xs text-destructive">{discountError}</p>
+                )}
+              </div>
+            )}
+
             <Separator />
             <div className="flex justify-between text-lg font-bold">
               <span>{t.total}</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>{finalTotal.toFixed(2)} EGP</span>
             </div>
             <Button
               onClick={handleCheckout}

@@ -74,6 +74,13 @@ export type Dict = {
   placingOrder: string;
   failedToPlaceOrder: string;
   addProductsBeforeCheckout: string;
+  discountCode: string;
+  discountPlaceholder: string;
+  apply: string;
+  applying: string;
+  remove: string;
+  discount: string;
+  invalidDiscount: string;
   // Orders
   order: string;
   items: string;
@@ -171,6 +178,13 @@ const dict: Record<Lang, Dict> = {
     placingOrder: "Placing Order...",
     failedToPlaceOrder: "Failed to place order. Please try again.",
     addProductsBeforeCheckout: "Add some products before checking out.",
+    discountCode: "Discount code",
+    discountPlaceholder: "Enter promo code",
+    apply: "Apply",
+    applying: "Applying...",
+    remove: "Remove",
+    discount: "Discount",
+    invalidDiscount: "Invalid or expired discount code",
     order: "Order",
     items: "items",
     failedToLoadOrders: "Failed to load orders",
@@ -264,6 +278,13 @@ const dict: Record<Lang, Dict> = {
     placingOrder: "جاري تأكيد الطلب...",
     failedToPlaceOrder: "فشل تأكيد الطلب. حاول مرة أخرى.",
     addProductsBeforeCheckout: "أضف بعض المنتجات قبل إتمام الشراء.",
+    discountCode: "كود الخصم",
+    discountPlaceholder: "أدخل كود الخصم",
+    apply: "تطبيق",
+    applying: "جاري التطبيق...",
+    remove: "إزالة",
+    discount: "الخصم",
+    invalidDiscount: "كود خصم غير صالح أو منتهي",
     order: "طلب",
     items: "منتجات",
     failedToLoadOrders: "فشل تحميل الطلبات",

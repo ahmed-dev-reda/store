@@ -57,6 +57,7 @@ export const ModelName = {
   Sale: 'Sale',
   SaleItem: 'SaleItem',
   StockMovement: 'StockMovement',
+  Discount: 'Discount',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
@@ -152,6 +153,21 @@ export const StockMovementScalarFieldEnum = {
 } as const
 
 export type StockMovementScalarFieldEnum = (typeof StockMovementScalarFieldEnum)[keyof typeof StockMovementScalarFieldEnum]
+
+
+export const DiscountScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  description: 'description',
+  amount: 'amount',
+  type: 'type',
+  active: 'active',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DiscountScalarFieldEnum = (typeof DiscountScalarFieldEnum)[keyof typeof DiscountScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

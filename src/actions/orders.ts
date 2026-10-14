@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { serializeSale } from "@/lib/serializers";
+import { applyDiscount, type ValidatedDiscount } from "@/lib/discount";
 
 async function requireStoreUser() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -20,9 +21,45 @@ function toClientError(error: unknown, fallback: string): Error {
   return new Error(fallback);
 }
 
+async function validateDiscountTx(
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  code: string,
+): Promise<ValidatedDiscount> {
+  const discount = await tx.discount.findUnique({ where: { code: code.trim() } });
+  if (!discount || !discount.active) {
+    throw new Error("DISCOUNT_INVALID:Invalid or inactive discount code");
+  }
+  if (discount.expiresAt && discount.expiresAt < new Date()) {
+    throw new Error("DISCOUNT_INVALID:Discount code has expired");
+  }
+  return {
+    code: discount.code,
+    type: discount.type,
+    amount: Number(discount.amount),
+  };
+}
+
+export async function validateDiscountCode(code: string): Promise<ValidatedDiscount> {
+  const trimmed = code.trim();
+  if (!trimmed) throw new Error("Enter a discount code");
+  const discount = await prisma.discount.findUnique({ where: { code: trimmed } });
+  if (!discount || !discount.active) {
+    throw new Error("Invalid or inactive discount code");
+  }
+  if (discount.expiresAt && discount.expiresAt < new Date()) {
+    throw new Error("Discount code has expired");
+  }
+  return {
+    code: discount.code,
+    type: discount.type,
+    amount: Number(discount.amount),
+  };
+}
+
 export async function createOrder(input: {
   items: { productId: string; quantity: number }[];
   paymentMethod: "visa" | "cod";
+  discountCode?: string;
 }) {
   const user = await requireStoreUser();
 
@@ -40,12 +77,18 @@ export async function createOrder(input: {
 
   try {
     return await prisma.$transaction(async (tx) => {
+      // Validate discount code server-side — never trust the client
+      let discount: ValidatedDiscount | null = null;
+      if (input.discountCode?.trim()) {
+        discount = await validateDiscountTx(tx, input.discountCode);
+      }
+
       // Load products from database — never trust client prices
       const productIds = input.items.map((i) => i.productId);
       const products = await tx.product.findMany({ where: { id: { in: productIds } } });
       const byId = new Map(products.map((p) => [p.id, p]));
 
-      let total = 0;
+      let subtotal = 0;
       const saleItemsData: {
         productId: string;
         quantity: number;
@@ -64,15 +107,17 @@ export async function createOrder(input: {
           );
         }
         const unitPrice = Number(product.price);
-        const subtotal = unitPrice * item.quantity;
-        total += subtotal;
+        const lineSubtotal = unitPrice * item.quantity;
+        subtotal += lineSubtotal;
         saleItemsData.push({
           productId: product.id,
           quantity: item.quantity,
           unitPrice,
-          subtotal,
+          subtotal: lineSubtotal,
         });
       }
+
+      const { total, discountAmount } = applyDiscount(subtotal, discount);
 
       const sale = await tx.sale.create({
         data: {
@@ -103,7 +148,12 @@ export async function createOrder(input: {
         });
       }
 
-      return serializeSale(sale);
+      return {
+        ...serializeSale(sale),
+        subtotal,
+        discountCode: discount?.code ?? null,
+        discountAmount,
+      };
     });
   } catch (error) {
     throw toClientError(error, "Failed to place order");

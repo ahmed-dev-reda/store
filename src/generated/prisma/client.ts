@@ -72,6 +72,11 @@ export type SaleItem = Prisma.SaleItemModel
  */
 export type StockMovement = Prisma.StockMovementModel
 /**
+ * Model Discount
+ * 
+ */
+export type Discount = Prisma.DiscountModel
+/**
  * Model User
  * 
  */
