@@ -120,7 +120,10 @@ export default function ClientProductsPage({
                 </h3>
                 <div className="mt-3 flex items-center justify-between">
                   <span className="text-lg font-bold">
-                    {format.number(product.price, { style: "currency", currency: "USD" })}
+                    {format.number(product.price, {
+                      style: "currency",
+                      currency: "USD",
+                    })}
                   </span>
                   {product.quantity > 0 && (
                     <Button

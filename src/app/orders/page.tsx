@@ -154,13 +154,17 @@ export default function OrdersPage() {
                       {t.orderNumber} #{order.id.slice(-8).toUpperCase()}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {new Date(order.createdAt).toLocaleDateString(
+                        lang === "ar" ? "ar-EG" : "en-US",
+                        {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        },
+                      )}
                       {" · "}
-                      {order.items.reduce((s, i) => s + i.quantity, 0)} {t.items}
+                      {order.items.reduce((s, i) => s + i.quantity, 0)}{" "}
+                      {t.items}
                     </p>
                   </div>
                 </div>
@@ -176,7 +180,9 @@ export default function OrdersPage() {
                   >
                     {t[order.status as keyof typeof t] ?? order.status}
                   </Badge>
-                  <span className="font-semibold">${order.total.toFixed(2)}</span>
+                  <span className="font-semibold">
+                    ${order.total.toFixed(2)}
+                  </span>
                   <ChevronRight className="size-4 text-muted-foreground" />
                 </div>
               </div>
