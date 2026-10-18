@@ -26,7 +26,9 @@ export default function RootLayout({
         <ThemeProvider>
           <StoreProvider>
             <I18nProvider>
-              <Suspense fallback={<div className="h-16 border-b" aria-hidden />}>
+              <Suspense
+                fallback={<div className="h-16 border-b" aria-hidden />}
+              >
                 <StoreHeader />
               </Suspense>
               <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>

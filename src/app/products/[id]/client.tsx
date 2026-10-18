@@ -18,14 +18,16 @@ export default function Client({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
   const handleAdd = () => {
     if (!product) return;
-    addItem(
-      {
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.imageUrl,
-      },
-      qty,
+    dispatch(
+      addItem(
+        {
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          imageUrl: product.imageUrl,
+        },
+        qty,
+      ),
     );
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

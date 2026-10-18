@@ -5,8 +5,6 @@ const imageHost = new URL(API_URL);
 
 const nextConfig: NextConfig = {
   images: {
-    // Static list so production builds work regardless of which
-    // NEXT_PUBLIC_API_URL value was present at build time.
     remotePatterns: [
       {
         protocol: "https",
@@ -20,6 +18,18 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/store/:path*",
+        destination: `${API_URL}/api/store/:path*`,
+      },
+      {
+        source: "/api/sales/:path*",
+        destination: `${API_URL}/api/sales/:path*`,
+      },
+    ];
   },
   cacheComponents: true,
   partialPrefetching: true,

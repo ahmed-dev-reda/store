@@ -76,7 +76,8 @@ export async function createOrder(input: {
   }
 
   try {
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(
+      async (tx) => {
       // Validate discount code server-side — never trust the client
       let discount: ValidatedDiscount | null = null;
       if (input.discountCode?.trim()) {
@@ -130,23 +131,27 @@ export async function createOrder(input: {
         include: { customer: true, items: { include: { product: true } } },
       });
 
-      for (const item of input.items) {
-        const updated = await tx.product.updateMany({
-          where: { id: item.productId, quantity: { gte: item.quantity } },
-          data: { quantity: { decrement: item.quantity } },
-        });
-        if (updated.count !== 1) {
-          throw new Error("INSUFFICIENT_STOCK:Insufficient stock");
-        }
-        await tx.stockMovement.create({
-          data: {
-            productId: item.productId,
-            type: "OUT",
-            quantity: item.quantity,
-            reason: `Sale ${sale.id}`,
-          },
-        });
-      }
+      // Decrement stock for all items in parallel — each update is
+      // guarded by quantity >= ordered so concurrent orders can't oversell
+      await Promise.all(
+        input.items.map(async (item) => {
+          const updated = await tx.product.updateMany({
+            where: { id: item.productId, quantity: { gte: item.quantity } },
+            data: { quantity: { decrement: item.quantity } },
+          });
+          if (updated.count !== 1) {
+            throw new Error("INSUFFICIENT_STOCK:Insufficient stock");
+          }
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: "OUT",
+              quantity: item.quantity,
+              reason: `Sale ${sale.id}`,
+            },
+          });
+        }),
+      );
 
       return {
         ...serializeSale(sale),
@@ -154,7 +159,10 @@ export async function createOrder(input: {
         discountCode: discount?.code ?? null,
         discountAmount,
       };
-    });
+      },
+      // Neon serverless latency needs a longer window than the 5s default
+      { timeout: 20000, maxWait: 10000 },
+    );
   } catch (error) {
     throw toClientError(error, "Failed to place order");
   }

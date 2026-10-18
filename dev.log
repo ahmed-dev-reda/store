@@ -1,19 +1,10 @@
 ▲ Next.js 16.4.0 (Turbopack)
 - Local:         http://localhost:3010
-- Network:       http://192.168.1.113:3010
+- Network:       http://192.168.1.9:3010
 - Environments: .env.local, .env
-✓ Ready in 243ms
-✓ Running next.config.ts took 20ms
+✓ Ready in 228ms
+✓ Running next.config.ts took 23ms
 - Cache Components enabled
 - Partial Prefetching enabled
 
- POST /api/auth/sign-in/username 200 in 2.7s (next.js: 670ms, application-code: 2.0s)
- GET /api/auth/get-session 200 in 10ms (next.js: 6ms, application-code: 4ms)
- POST /api/auth/sign-in/username 400 in 10ms (next.js: 5ms, application-code: 5ms)
- GET /api/auth/get-session 200 in 4ms (next.js: 0.6ms, application-code: 3ms)
- POST /api/auth/sign-in/username 200 in 1789ms (next.js: 5ms, application-code: 1784ms)
- GET /api/auth/get-session 200 in 378ms (next.js: 6ms, application-code: 372ms)
- GET /products 200 in 790ms (next.js: 94ms, application-code: 696ms)
- GET /checkout 200 in 43ms (next.js: 5ms, application-code: 38ms)
- GET /orders 200 in 46ms (next.js: 8ms, application-code: 38ms)
- GET /login 200 in 44ms (next.js: 4ms, application-code: 40ms)
+ POST /api/auth/sign-in/username 200 in 3.0s (next.js: 644ms, application-code: 2.4s)
