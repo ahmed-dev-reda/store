@@ -22,6 +22,7 @@ export function serializeProduct(
     price: Number(product.price),
     quantity: product.quantity,
     imageUrl: product.imageUrl,
+    imagePublicId: product.imagePublicId,
     category: product.category ? serializeCategory(product.category) : null,
     categoryId: product.categoryId,
     status: productStatus(product.quantity),
